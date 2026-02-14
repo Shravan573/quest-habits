@@ -8,15 +8,17 @@ function generateBoxShadow(pixels, scale) {
   ).join(', ');
 }
 
-export default function BossSprite({ bossKey, scale = 6, animate = true, hit = false }) {
-  const boss = BOSSES[bossKey];
+export default function BossSprite({ bossKey, pixels: customPixels, glowColor: customGlow, scale = 6, animate = true, hit = false }) {
+  const boss = bossKey ? BOSSES[bossKey] : null;
+  const pixels = customPixels || boss?.pixels;
+  const glowColor = customGlow || boss?.glowColor || '#ff0000';
 
   const boxShadow = useMemo(() => {
-    if (!boss?.pixels) return 'none';
-    return generateBoxShadow(boss.pixels, scale);
-  }, [boss, scale]);
+    if (!pixels) return 'none';
+    return generateBoxShadow(pixels, scale);
+  }, [pixels, scale]);
 
-  if (!boss) {
+  if (!pixels) {
     return (
       <div style={{ fontSize: 64, textAlign: 'center' }}>
         🐉
@@ -24,9 +26,8 @@ export default function BossSprite({ bossKey, scale = 6, animate = true, hit = f
     );
   }
 
-  // Calculate total size for centering
-  const maxX = Math.max(...boss.pixels.map(([x]) => x));
-  const maxY = Math.max(...boss.pixels.map(([, y]) => y));
+  const maxX = Math.max(...pixels.map(([x]) => x));
+  const maxY = Math.max(...pixels.map(([, y]) => y));
   const totalWidth = (maxX + 1) * scale;
   const totalHeight = (maxY + 1) * scale;
 
@@ -54,7 +55,6 @@ export default function BossSprite({ bossKey, scale = 6, animate = true, hit = f
           filter: hit ? 'brightness(2)' : 'none',
           transition: 'filter 0.1s',
         }} />
-        {/* Glow effect under the boss */}
         <div style={{
           position: 'absolute',
           bottom: -scale,
@@ -62,7 +62,7 @@ export default function BossSprite({ bossKey, scale = 6, animate = true, hit = f
           transform: 'translateX(-50%)',
           width: totalWidth * 0.8,
           height: scale * 2,
-          background: `radial-gradient(ellipse, ${boss.glowColor}33 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse, ${glowColor}33 0%, transparent 70%)`,
           borderRadius: '50%',
         }} />
       </div>

@@ -1,12 +1,14 @@
 import NavBar from './NavBar';
 import CRTOverlay from './CRTOverlay';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { CLASSES } from '../../data/classes';
 import { COLORS, FONTS, SIZES } from '../../styles/theme';
 import HealthBar from '../ui/HealthBar';
 import StatBar from '../ui/StatBar';
 
 export default function AppShell({ children }) {
   const { profile } = useAuthContext();
+  const playerClass = profile?.class ? CLASSES[profile.class] : null;
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bgDarkest, paddingBottom: 70 }}>
@@ -28,13 +30,13 @@ export default function AppShell({ children }) {
               width: 36,
               height: 36,
               backgroundColor: COLORS.bgMedium,
-              border: `2px solid ${COLORS.neonGreen}`,
+              border: `2px solid ${playerClass?.color || COLORS.neonGreen}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 18,
             }}>
-              ⚔️
+              {playerClass?.emoji || '⚔️'}
             </div>
             <div>
               <div style={{

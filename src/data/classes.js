@@ -1,0 +1,294 @@
+export const CLASSES = {
+  warrior: {
+    key: 'warrior',
+    name: 'Warrior',
+    emoji: '⚔️',
+    description: 'Brute force specialist. Excels at raw damage from Dailies.',
+    color: '#ff4444',
+    baseStats: { hp: 60, maxHp: 60, attack: 2 },
+    skills: [
+      {
+        id: 'warrior_power_strike',
+        name: 'Power Strike',
+        emoji: '💥',
+        description: '+10% damage per level from Dailies',
+        maxLevel: 5,
+        cost: [1, 2, 3, 4, 5],
+        effect: { type: 'daily_damage_percent', value: 10 },
+      },
+      {
+        id: 'warrior_iron_will',
+        name: 'Iron Will',
+        emoji: '🛡️',
+        description: '+5 max HP per level',
+        maxLevel: 5,
+        cost: [1, 1, 2, 2, 3],
+        effect: { type: 'max_hp', value: 5 },
+      },
+      {
+        id: 'warrior_battle_cry',
+        name: 'Battle Cry',
+        emoji: '📯',
+        description: '+5% party damage per level',
+        maxLevel: 3,
+        cost: [2, 3, 5],
+        effect: { type: 'party_damage_percent', value: 5 },
+      },
+      {
+        id: 'warrior_berserker',
+        name: 'Berserker',
+        emoji: '🔥',
+        description: '+15% damage when HP below 50%',
+        maxLevel: 3,
+        cost: [2, 4, 6],
+        effect: { type: 'low_hp_damage_percent', value: 15 },
+      },
+      {
+        id: 'warrior_shield_wall',
+        name: 'Shield Wall',
+        emoji: '🏰',
+        description: 'Reduce boss damage taken by 8% per level',
+        maxLevel: 3,
+        cost: [3, 4, 5],
+        effect: { type: 'damage_reduction_percent', value: 8 },
+      },
+      {
+        id: 'warrior_warlord',
+        name: 'Warlord',
+        emoji: '👑',
+        description: 'ULTIMATE: +3 flat damage to all attacks',
+        maxLevel: 1,
+        cost: [10],
+        effect: { type: 'flat_damage', value: 3 },
+        requires: 'warrior_berserker',
+        requiresLevel: 2,
+      },
+    ],
+  },
+  mage: {
+    key: 'mage',
+    name: 'Mage',
+    emoji: '🧙',
+    description: 'XP specialist. Levels faster and excels with Habits.',
+    color: '#9900ff',
+    baseStats: { hp: 45, maxHp: 45, attack: 1 },
+    skills: [
+      {
+        id: 'mage_arcane_power',
+        name: 'Arcane Power',
+        emoji: '✨',
+        description: '+10% XP gained per level',
+        maxLevel: 5,
+        cost: [1, 2, 3, 4, 5],
+        effect: { type: 'xp_percent', value: 10 },
+      },
+      {
+        id: 'mage_mana_shield',
+        name: 'Mana Shield',
+        emoji: '🔮',
+        description: '+5 max HP per level',
+        maxLevel: 3,
+        cost: [1, 2, 3],
+        effect: { type: 'max_hp', value: 5 },
+      },
+      {
+        id: 'mage_elemental',
+        name: 'Elemental Mastery',
+        emoji: '🌊',
+        description: '+8% damage per level from Habits',
+        maxLevel: 5,
+        cost: [1, 2, 3, 4, 5],
+        effect: { type: 'habit_damage_percent', value: 8 },
+      },
+      {
+        id: 'mage_time_warp',
+        name: 'Time Warp',
+        emoji: '⏳',
+        description: 'Streak bonus grows 50% faster per level',
+        maxLevel: 3,
+        cost: [2, 4, 6],
+        effect: { type: 'streak_bonus_multiplier', value: 50 },
+      },
+      {
+        id: 'mage_wisdom',
+        name: 'Wisdom',
+        emoji: '📚',
+        description: '+12% gold per level',
+        maxLevel: 3,
+        cost: [2, 3, 5],
+        effect: { type: 'gold_percent', value: 12 },
+      },
+      {
+        id: 'mage_archmage',
+        name: 'Archmage',
+        emoji: '⚡',
+        description: 'ULTIMATE: +2 base damage to all task types',
+        maxLevel: 1,
+        cost: [10],
+        effect: { type: 'flat_damage', value: 2 },
+        requires: 'mage_elemental',
+        requiresLevel: 3,
+      },
+    ],
+  },
+  healer: {
+    key: 'healer',
+    name: 'Healer',
+    emoji: '💚',
+    description: 'Support specialist. Keeps the party alive.',
+    color: '#39ff14',
+    baseStats: { hp: 55, maxHp: 55, attack: 1 },
+    skills: [
+      {
+        id: 'healer_restoration',
+        name: 'Restoration',
+        emoji: '💖',
+        description: 'Heal 2 HP per level when completing a Daily',
+        maxLevel: 5,
+        cost: [1, 2, 3, 4, 5],
+        effect: { type: 'heal_on_daily', value: 2 },
+      },
+      {
+        id: 'healer_holy_shield',
+        name: 'Holy Shield',
+        emoji: '🛡️',
+        description: 'Party takes 5% less boss damage per level',
+        maxLevel: 5,
+        cost: [1, 2, 3, 4, 5],
+        effect: { type: 'party_damage_reduction', value: 5 },
+      },
+      {
+        id: 'healer_blessed_streak',
+        name: 'Blessed Streak',
+        emoji: '🙏',
+        description: '+1 streak protection per level (missed dailies forgiven)',
+        maxLevel: 3,
+        cost: [3, 5, 8],
+        effect: { type: 'streak_protection', value: 1 },
+      },
+      {
+        id: 'healer_divine_light',
+        name: 'Divine Light',
+        emoji: '☀️',
+        description: '+10% XP per level',
+        maxLevel: 3,
+        cost: [2, 3, 5],
+        effect: { type: 'xp_percent', value: 10 },
+      },
+      {
+        id: 'healer_sanctuary',
+        name: 'Sanctuary',
+        emoji: '🏥',
+        description: '+8 max HP per level',
+        maxLevel: 3,
+        cost: [2, 3, 4],
+        effect: { type: 'max_hp', value: 8 },
+      },
+      {
+        id: 'healer_miracle',
+        name: 'Miracle',
+        emoji: '✝️',
+        description: 'ULTIMATE: Completing all dailies heals party for 10 HP',
+        maxLevel: 1,
+        cost: [10],
+        effect: { type: 'party_heal_on_perfect_day', value: 10 },
+        requires: 'healer_restoration',
+        requiresLevel: 3,
+      },
+    ],
+  },
+  rogue: {
+    key: 'rogue',
+    name: 'Rogue',
+    emoji: '🗡️',
+    description: 'Gold hunter. Excels at To-Dos and finding treasure.',
+    color: '#ffd700',
+    baseStats: { hp: 50, maxHp: 50, attack: 2 },
+    skills: [
+      {
+        id: 'rogue_backstab',
+        name: 'Backstab',
+        emoji: '🔪',
+        description: '+12% damage per level from To-Dos',
+        maxLevel: 5,
+        cost: [1, 2, 3, 4, 5],
+        effect: { type: 'todo_damage_percent', value: 12 },
+      },
+      {
+        id: 'rogue_treasure_hunter',
+        name: 'Treasure Hunter',
+        emoji: '💰',
+        description: '+15% gold per level',
+        maxLevel: 5,
+        cost: [1, 2, 3, 4, 5],
+        effect: { type: 'gold_percent', value: 15 },
+      },
+      {
+        id: 'rogue_evasion',
+        name: 'Evasion',
+        emoji: '💨',
+        description: '10% chance per level to dodge boss damage',
+        maxLevel: 3,
+        cost: [2, 4, 6],
+        effect: { type: 'dodge_percent', value: 10 },
+      },
+      {
+        id: 'rogue_poison',
+        name: 'Poison Blade',
+        emoji: '☠️',
+        description: 'Minions take 1 extra damage per level each day',
+        maxLevel: 3,
+        cost: [2, 3, 5],
+        effect: { type: 'minion_dot', value: 1 },
+      },
+      {
+        id: 'rogue_shadow_step',
+        name: 'Shadow Step',
+        emoji: '👤',
+        description: '+10% damage per level to minions',
+        maxLevel: 3,
+        cost: [2, 3, 4],
+        effect: { type: 'minion_damage_percent', value: 10 },
+      },
+      {
+        id: 'rogue_assassinate',
+        name: 'Assassinate',
+        emoji: '💀',
+        description: 'ULTIMATE: Minions below 20% HP are instantly killed',
+        maxLevel: 1,
+        cost: [10],
+        effect: { type: 'execute_threshold', value: 20 },
+        requires: 'rogue_backstab',
+        requiresLevel: 3,
+      },
+    ],
+  },
+};
+
+export const CLASS_ORDER = ['warrior', 'mage', 'healer', 'rogue'];
+
+export function getSkillEffect(skills, effectType) {
+  let total = 0;
+  for (const classData of Object.values(CLASSES)) {
+    for (const skill of classData.skills) {
+      if (skill.effect.type === effectType) {
+        const level = skills?.[skill.id] || 0;
+        total += skill.effect.value * level;
+      }
+    }
+  }
+  return total;
+}
+
+export function getTotalSkillPointsSpent(skills) {
+  let spent = 0;
+  for (const classData of Object.values(CLASSES)) {
+    for (const skill of classData.skills) {
+      const level = skills?.[skill.id] || 0;
+      for (let i = 0; i < level; i++) {
+        spent += skill.cost[i] || 0;
+      }
+    }
+  }
+  return spent;
+}

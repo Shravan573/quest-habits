@@ -3,7 +3,7 @@ import {
   collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import { calculateDamageToBoss, calculateTaskRewards, checkLevelUp } from '../utils/damage';
+import { calculateDamage, calculateTaskRewards, checkLevelUp } from '../utils/damage';
 import { useAuthContext } from '../contexts/AuthContext';
 
 export function useTasks() {
@@ -51,7 +51,26 @@ export function useTasks() {
     await deleteDoc(taskRef);
   };
 
-  const scoreHabit = async (task, direction) => {
+  const applyRewards = async (xp, gold, levelUp) => {
+    const userRef = doc(db, 'users', user.uid);
+    if (levelUp) {
+      await updateDoc(userRef, {
+        xp: levelUp.remainingXp,
+        gold: profile.gold + gold,
+        level: profile.level + 1,
+        maxHp: profile.maxHp + 5,
+        hp: profile.maxHp + 5,
+        skillPoints: (profile.skillPoints || 0) + 1,
+      });
+    } else {
+      await updateDoc(userRef, {
+        xp: profile.xp + xp,
+        gold: profile.gold + gold,
+      });
+    }
+  };
+
+  const scoreHabit = async (task, direction, targetType) => {
     if (!user || !profile) return null;
 
     const updates = {};
@@ -60,98 +79,45 @@ export function useTasks() {
     } else {
       updates.counterDown = (task.counterDown || 0) + 1;
     }
-
     await updateTask(task.id, updates);
 
     if (direction === 'up') {
-      const damage = calculateDamageToBoss(task, profile.level);
-      const { xp, gold } = calculateTaskRewards(task, profile.level);
-
-      const userRef = doc(db, 'users', user.uid);
+      const damage = calculateDamage(task, profile, targetType || 'boss');
+      const { xp, gold } = calculateTaskRewards(task, profile);
       const newXp = profile.xp + xp;
       const levelUp = checkLevelUp(newXp, profile.level);
-
-      if (levelUp) {
-        await updateDoc(userRef, {
-          xp: levelUp.remainingXp,
-          gold: profile.gold + gold,
-          level: profile.level + 1,
-          maxHp: levelUp.newMaxHp,
-          hp: levelUp.newMaxHp,
-        });
-      } else {
-        await updateDoc(userRef, {
-          xp: newXp,
-          gold: profile.gold + gold,
-        });
-      }
-
+      await applyRewards(xp, gold, levelUp);
       return { damage, xp, gold, levelUp: !!levelUp };
     }
-
     return null;
   };
 
-  const completeDaily = async (task) => {
+  const completeDaily = async (task, targetType) => {
     if (!user || !profile) return null;
     if (task.completed) return null;
 
     const newStreak = (task.streak || 0) + 1;
     await updateTask(task.id, { completed: true, streak: newStreak });
 
-    const damage = calculateDamageToBoss({ ...task, streak: newStreak }, profile.level);
-    const { xp, gold } = calculateTaskRewards(task, profile.level);
-
-    const userRef = doc(db, 'users', user.uid);
+    const damage = calculateDamage({ ...task, streak: newStreak }, profile, targetType || 'boss');
+    const { xp, gold } = calculateTaskRewards(task, profile);
     const newXp = profile.xp + xp;
     const levelUp = checkLevelUp(newXp, profile.level);
-
-    if (levelUp) {
-      await updateDoc(userRef, {
-        xp: levelUp.remainingXp,
-        gold: profile.gold + gold,
-        level: profile.level + 1,
-        maxHp: levelUp.newMaxHp,
-        hp: levelUp.newMaxHp,
-      });
-    } else {
-      await updateDoc(userRef, {
-        xp: newXp,
-        gold: profile.gold + gold,
-      });
-    }
-
+    await applyRewards(xp, gold, levelUp);
     return { damage, xp, gold, levelUp: !!levelUp };
   };
 
-  const completeTodo = async (task) => {
+  const completeTodo = async (task, targetType) => {
     if (!user || !profile) return null;
     if (task.completed) return null;
 
     await updateTask(task.id, { completed: true });
 
-    const damage = calculateDamageToBoss(task, profile.level);
-    const { xp, gold } = calculateTaskRewards(task, profile.level);
-
-    const userRef = doc(db, 'users', user.uid);
+    const damage = calculateDamage(task, profile, targetType || 'boss');
+    const { xp, gold } = calculateTaskRewards(task, profile);
     const newXp = profile.xp + xp;
     const levelUp = checkLevelUp(newXp, profile.level);
-
-    if (levelUp) {
-      await updateDoc(userRef, {
-        xp: levelUp.remainingXp,
-        gold: profile.gold + gold,
-        level: profile.level + 1,
-        maxHp: levelUp.newMaxHp,
-        hp: levelUp.newMaxHp,
-      });
-    } else {
-      await updateDoc(userRef, {
-        xp: newXp,
-        gold: profile.gold + gold,
-      });
-    }
-
+    await applyRewards(xp, gold, levelUp);
     return { damage, xp, gold, levelUp: !!levelUp };
   };
 

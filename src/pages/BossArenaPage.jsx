@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { usePartyContext } from '../contexts/PartyContext';
-import { useBoss } from '../hooks/useBoss';
-import { BOSSES } from '../data/bosses';
+import { useEncounter } from '../hooks/useEncounter';
+import { BOSSES, BOSS_ORDER } from '../data/bosses';
+import { BOSS_MINIONS } from '../data/minions';
 import BossSprite from '../components/boss/BossSprite';
 import BossHealthBar from '../components/boss/BossHealthBar';
 import DamageNumber from '../components/boss/DamageNumber';
@@ -13,53 +14,55 @@ import PixelCard from '../components/ui/PixelCard';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 
 export default function BossArenaPage() {
-  const { party, loading, startBoss } = usePartyContext();
-  const { startNextBoss } = useBoss(party);
+  const { party, loading } = usePartyContext();
+  const { startEncounter, getCurrentTarget } = useEncounter(party);
   const [hit, setHit] = useState(false);
   const [damageNumbers, setDamageNumbers] = useState([]);
   const [showDefeatModal, setShowDefeatModal] = useState(false);
   const [lastDefeatedBoss, setLastDefeatedBoss] = useState(null);
   const prevHpRef = useRef(null);
+  const prevPhaseRef = useRef(null);
 
-  // Detect damage dealt to boss (HP changes from other players too)
+  const encounter = party?.encounter;
+  const target = getCurrentTarget();
+
+  // Detect HP changes for hit animation + floating damage numbers
   useEffect(() => {
-    if (!party?.activeBoss) return;
-    const currentHp = party.activeBoss.currentHp;
+    if (!target?.data) { prevHpRef.current = null; return; }
+    const currentHp = target.data.currentHp;
 
     if (prevHpRef.current !== null && currentHp < prevHpRef.current) {
       const damageTaken = prevHpRef.current - currentHp;
       setHit(true);
       setTimeout(() => setHit(false), 300);
-
       setDamageNumbers((prev) => [
         ...prev.slice(-5),
         { id: Date.now(), amount: damageTaken, type: 'dealt' },
       ]);
     }
-
     prevHpRef.current = currentHp;
-  }, [party?.activeBoss?.currentHp]);
+  }, [target?.data?.currentHp]);
 
-  // Detect boss defeated
+  // Detect encounter victory
   useEffect(() => {
-    if (!party?.activeBoss && prevHpRef.current !== null && prevHpRef.current > 0) {
-      // Boss was just defeated
-      const lastFeed = party?.damageFeed;
-      if (lastFeed && lastFeed.length > 0) {
-        // Try to find what boss was just defeated from the bossLevel
-        const defeatedIndex = Math.min((party.bossLevel || 1) - 1, 6);
-        const bossKeys = Object.keys(BOSSES);
-        setLastDefeatedBoss(bossKeys[defeatedIndex] || 'slime_king');
-        setShowDefeatModal(true);
-      }
-      prevHpRef.current = null;
+    if (!encounter) return;
+    if (encounter.phase === 'victory' && prevPhaseRef.current === 'boss') {
+      const defeatedIndex = Math.min((party.bossLevel || 1) - 1, BOSS_ORDER.length - 1);
+      setLastDefeatedBoss(BOSS_ORDER[defeatedIndex]);
+      setShowDefeatModal(true);
     }
-  }, [party?.activeBoss, party?.bossLevel]);
+    prevPhaseRef.current = encounter.phase;
+  }, [encounter?.phase, party?.bossLevel]);
+
+  const handleStartEncounter = async () => {
+    await startEncounter();
+  };
 
   const handleStartNext = async () => {
-    await startNextBoss();
+    await startEncounter();
     setShowDefeatModal(false);
     setLastDefeatedBoss(null);
+    setDamageNumbers([]);
   };
 
   if (loading) {
@@ -103,11 +106,12 @@ export default function BossArenaPage() {
     );
   }
 
-  // No active boss
-  if (!party.activeBoss) {
-    const bossIndex = Math.min(party.bossLevel || 0, 6);
-    const nextBossKey = Object.keys(BOSSES)[bossIndex];
+  // No active encounter — show summon screen
+  if (!encounter || encounter.phase === 'victory') {
+    const bossIndex = Math.min(party.bossLevel || 0, BOSS_ORDER.length - 1);
+    const nextBossKey = BOSS_ORDER[bossIndex];
     const nextBoss = BOSSES[nextBossKey];
+    const minions = BOSS_MINIONS[nextBossKey] || [];
 
     return (
       <div style={{
@@ -147,7 +151,7 @@ export default function BossArenaPage() {
             display: 'flex',
             justifyContent: 'center',
             gap: SIZES.spacing * 3,
-            marginBottom: SIZES.spacing * 2,
+            marginBottom: SIZES.spacing,
           }}>
             <div>
               <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.fireRed }}>
@@ -165,17 +169,54 @@ export default function BossArenaPage() {
               </div>
             </div>
           </div>
+
+          {/* Minion wave preview */}
+          {minions.length > 0 && (
+            <div style={{
+              borderTop: `1px solid ${COLORS.border}`,
+              paddingTop: SIZES.spacing,
+              marginTop: SIZES.spacing,
+            }}>
+              <div style={{
+                fontFamily: FONTS.pixel,
+                fontSize: 7,
+                color: COLORS.textMuted,
+                marginBottom: SIZES.spacing,
+              }}>
+                {minions.length} MINION{minions.length > 1 ? 'S' : ''} GUARD THIS BOSS
+              </div>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: SIZES.spacing,
+                flexWrap: 'wrap',
+              }}>
+                {minions.map((m, i) => (
+                  <div key={i} style={{
+                    backgroundColor: COLORS.bgDarkest,
+                    border: `1px solid ${COLORS.border}`,
+                    padding: '4px 6px',
+                    textAlign: 'center',
+                  }}>
+                    <div style={{ fontSize: 16 }}>{m.emoji}</div>
+                    <div style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.textMuted }}>
+                      {m.maxHp}HP
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </PixelCard>
 
         <PixelButton
           variant="gold"
-          onClick={startBoss}
+          onClick={handleStartEncounter}
           style={{ width: '100%', padding: `${SIZES.spacing * 2}px 0`, fontSize: SIZES.fontMd }}
         >
-          ⚔️ SUMMON BOSS
+          ⚔️ BEGIN ENCOUNTER
         </PixelButton>
 
-        {/* Boss defeated modal */}
         {showDefeatModal && lastDefeatedBoss && (
           <BossDefeatModal
             bossKey={lastDefeatedBoss}
@@ -187,8 +228,19 @@ export default function BossArenaPage() {
     );
   }
 
-  // Active boss — battle view
-  const bossDef = BOSSES[party.activeBoss.bossKey];
+  // Active encounter — battle view
+  const isMinionPhase = encounter.phase === 'minions';
+  const isBossPhase = encounter.phase === 'boss';
+  const bossDef = BOSSES[encounter.boss.bossKey];
+
+  const currentTarget = target?.data;
+  const targetGlow = isMinionPhase
+    ? (currentTarget?.glowColor || COLORS.neonGreen)
+    : (bossDef?.glowColor || COLORS.fireRed);
+
+  // For minion wave progress
+  const totalMinions = encounter.minions?.length || 0;
+  const defeatedMinions = encounter.minions?.filter(m => m.defeated).length || 0;
 
   return (
     <div style={{ padding: SIZES.spacing * 2 }}>
@@ -203,26 +255,67 @@ export default function BossArenaPage() {
           color: COLORS.textMuted,
           letterSpacing: 2,
         }}>
-          BOSS ARENA
+          {isMinionPhase ? 'MINION WAVE' : 'BOSS ARENA'}
         </div>
         <div style={{
           fontFamily: FONTS.pixel,
           fontSize: SIZES.fontLg,
-          color: bossDef?.glowColor || COLORS.fireRed,
-          textShadow: `0 0 10px ${bossDef?.glowColor || COLORS.fireRed}44`,
+          color: targetGlow,
+          textShadow: `0 0 10px ${targetGlow}44`,
         }}>
-          {party.activeBoss.name}
+          {currentTarget?.name || 'Unknown'}
         </div>
-        <div style={{
-          fontFamily: FONTS.pixel,
-          fontSize: 7,
-          color: COLORS.textMuted,
-        }}>
-          LV.{party.activeBoss.level} · ATK {party.activeBoss.attackPower}
-        </div>
+        {isMinionPhase && (
+          <div style={{
+            fontFamily: FONTS.pixel,
+            fontSize: 7,
+            color: COLORS.textMuted,
+          }}>
+            WAVE {defeatedMinions + 1}/{totalMinions} · Boss: {encounter.boss.name}
+          </div>
+        )}
+        {isBossPhase && (
+          <div style={{
+            fontFamily: FONTS.pixel,
+            fontSize: 7,
+            color: COLORS.textMuted,
+          }}>
+            LV.{encounter.boss.level} · ATK {encounter.boss.attackPower}
+          </div>
+        )}
       </div>
 
-      {/* Boss Sprite Area */}
+      {/* Minion wave progress dots */}
+      {isMinionPhase && totalMinions > 1 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 4,
+          marginBottom: SIZES.spacing,
+        }}>
+          {encounter.minions.map((m, i) => (
+            <div key={i} style={{
+              width: 12,
+              height: 12,
+              border: `1px solid ${m.defeated ? COLORS.neonGreen : COLORS.border}`,
+              backgroundColor: m.defeated
+                ? COLORS.neonGreen
+                : i === encounter.currentMinionIndex
+                  ? targetGlow
+                  : COLORS.bgDarkest,
+              opacity: m.defeated ? 0.5 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 7,
+            }}>
+              {m.defeated ? '✓' : ''}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Sprite Area */}
       <div style={{
         position: 'relative',
         backgroundColor: COLORS.bgDarkest,
@@ -231,14 +324,22 @@ export default function BossArenaPage() {
         marginBottom: SIZES.spacing * 2,
         minHeight: 120,
         overflow: 'hidden',
-        // Subtle background pattern
-        backgroundImage: `radial-gradient(circle at 50% 100%, ${bossDef?.glowColor || '#ff000022'} 0%, transparent 60%)`,
+        backgroundImage: `radial-gradient(circle at 50% 100%, ${targetGlow}22 0%, transparent 60%)`,
       }}>
-        <BossSprite
-          bossKey={party.activeBoss.bossKey}
-          scale={7}
-          hit={hit}
-        />
+        {isMinionPhase ? (
+          <BossSprite
+            pixels={currentTarget?.pixels}
+            glowColor={currentTarget?.glowColor}
+            scale={8}
+            hit={hit}
+          />
+        ) : (
+          <BossSprite
+            bossKey={encounter.boss.bossKey}
+            scale={7}
+            hit={hit}
+          />
+        )}
 
         {/* Floating damage numbers */}
         {damageNumbers.map((dn) => (
@@ -246,10 +347,44 @@ export default function BossArenaPage() {
         ))}
       </div>
 
-      {/* Boss HP Bar */}
-      <div style={{ marginBottom: SIZES.spacing * 2 }}>
-        <BossHealthBar currentHp={party.activeBoss.currentHp} maxHp={party.activeBoss.maxHp} />
+      {/* HP Bar */}
+      <div style={{ marginBottom: SIZES.spacing }}>
+        <BossHealthBar
+          currentHp={currentTarget?.currentHp || 0}
+          maxHp={currentTarget?.maxHp || 1}
+        />
       </div>
+
+      {/* XP/Gold reward preview for current target */}
+      {currentTarget && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: SIZES.spacing * 2,
+          marginBottom: SIZES.spacing * 2,
+        }}>
+          {isMinionPhase && (
+            <>
+              <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.neonCyan }}>
+                +{currentTarget.xp} XP
+              </span>
+              <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.gold }}>
+                +{currentTarget.gold} 🪙
+              </span>
+            </>
+          )}
+          {isBossPhase && encounter.boss.rewards && (
+            <>
+              <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.neonCyan }}>
+                +{encounter.boss.rewards.xp} XP
+              </span>
+              <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.gold }}>
+                +{encounter.boss.rewards.gold} 🪙
+              </span>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Info text */}
       <div style={{
