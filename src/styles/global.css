@@ -1,0 +1,31 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  image-rendering: pixelated;
+}
+
+html, body, #root {
+  height: 100%;
+  background-color: #0a0a1a;
+  color: #e0e0e0;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #1a1a2e; }
+::-webkit-scrollbar-thumb { background: #333366; }
+
+::selection {
+  background: #39ff14;
+  color: #0a0a1a;
+}
+
+input::placeholder {
+  color: #555555;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
+}
