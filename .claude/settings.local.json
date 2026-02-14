@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Bash(where:*)",
+      "Bash(npm create:*)",
+      "Bash(cmd /c \"where node & where npm\")",
+      "Bash(cmd /c \"node --version 2>&1 & npm --version 2>&1\")"
+    ]
+  }
+}
