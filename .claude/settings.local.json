@@ -5,7 +5,9 @@
       "Bash(where:*)",
       "Bash(npm create:*)",
       "Bash(cmd /c \"where node & where npm\")",
-      "Bash(cmd /c \"node --version 2>&1 & npm --version 2>&1\")"
+      "Bash(cmd /c \"node --version 2>&1 & npm --version 2>&1\")",
+      "Bash(npx vite build:*)",
+      "Bash(tasklist)"
     ]
   }
 }

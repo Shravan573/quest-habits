@@ -4,6 +4,8 @@ import { COLORS, FONTS, SIZES, PIXEL_BORDER } from '../../styles/theme';
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'QUESTS', icon: '⚔️' },
   { path: '/boss', label: 'BOSS', icon: '🐉' },
+  { path: '/shop', label: 'SHOP', icon: '🏪' },
+  { path: '/skills', label: 'SKILLS', icon: '⭐' },
   { path: '/party', label: 'PARTY', icon: '👥' },
 ];
 
@@ -43,10 +45,10 @@ export default function NavBar() {
               gap: 2,
             }}
           >
-            <span style={{ fontSize: 20 }}>{item.icon}</span>
+            <span style={{ fontSize: 18 }}>{item.icon}</span>
             <span style={{
               fontFamily: FONTS.pixel,
-              fontSize: 7,
+              fontSize: 6,
               color: active ? COLORS.neonGreen : COLORS.textMuted,
               letterSpacing: 1,
             }}>

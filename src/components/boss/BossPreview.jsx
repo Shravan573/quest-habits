@@ -2,14 +2,20 @@ import { useNavigate } from 'react-router-dom';
 import { BOSSES } from '../../data/bosses';
 import { COLORS, FONTS, SIZES, PIXEL_BORDER } from '../../styles/theme';
 
-export default function BossPreview({ boss }) {
+export default function BossPreview({ boss, minion, encounterInfo }) {
   const navigate = useNavigate();
-  const bossDef = BOSSES[boss?.bossKey];
 
-  if (!boss) return null;
+  const isMinion = !!minion;
+  const target = isMinion ? minion : boss;
+  const bossDef = !isMinion && boss ? BOSSES[boss.bossKey] : null;
 
-  const percentage = Math.max(0, boss.currentHp / boss.maxHp);
+  if (!target) return null;
+
+  const currentHp = target.currentHp;
+  const maxHp = target.maxHp;
+  const percentage = Math.max(0, currentHp / maxHp);
   const barColor = percentage > 0.5 ? COLORS.neonGreen : percentage > 0.25 ? COLORS.gold : COLORS.fireRed;
+  const glowColor = isMinion ? (target.glowColor || COLORS.neonGreen) : (bossDef?.glowColor || COLORS.border);
 
   return (
     <div
@@ -25,23 +31,21 @@ export default function BossPreview({ boss }) {
         gap: SIZES.spacing,
       }}
     >
-      {/* Boss emoji */}
       <div style={{
         width: 40,
         height: 40,
         backgroundColor: COLORS.bgDarkest,
-        border: `2px solid ${bossDef?.glowColor || COLORS.border}`,
+        border: `2px solid ${glowColor}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: 22,
         flexShrink: 0,
-        boxShadow: `0 0 8px ${bossDef?.glowColor || COLORS.border}44`,
+        boxShadow: `0 0 8px ${glowColor}44`,
       }}>
-        {bossDef?.emoji || '🐉'}
+        {isMinion ? (target.emoji || '👾') : (bossDef?.emoji || '🐉')}
       </div>
 
-      {/* Info + HP bar */}
       <div style={{ flex: 1 }}>
         <div style={{
           display: 'flex',
@@ -54,17 +58,16 @@ export default function BossPreview({ boss }) {
             fontSize: SIZES.fontXs,
             color: COLORS.textPrimary,
           }}>
-            {boss.name}
+            {isMinion ? target.name : (boss?.name || 'Boss')}
           </span>
           <span style={{
             fontFamily: FONTS.pixel,
             fontSize: 7,
             color: barColor,
           }}>
-            {boss.currentHp}/{boss.maxHp}
+            {currentHp}/{maxHp}
           </span>
         </div>
-        {/* Mini HP bar */}
         <div style={{
           height: 8,
           backgroundColor: '#111',
@@ -78,9 +81,20 @@ export default function BossPreview({ boss }) {
             boxShadow: `0 0 4px ${barColor}`,
           }} />
         </div>
+        {encounterInfo && (
+          <div style={{
+            fontFamily: FONTS.pixel,
+            fontSize: 7,
+            color: COLORS.textMuted,
+            marginTop: 2,
+          }}>
+            {isMinion
+              ? `MINION ${encounterInfo.total - encounterInfo.remaining + 1}/${encounterInfo.total}`
+              : 'BOSS PHASE'}
+          </div>
+        )}
       </div>
 
-      {/* Arrow */}
       <span style={{
         fontFamily: FONTS.pixel,
         fontSize: SIZES.fontSm,

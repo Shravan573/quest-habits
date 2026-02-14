@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTasks } from '../hooks/useTasks';
 import { usePartyContext } from '../contexts/PartyContext';
-import { useBoss } from '../hooks/useBoss';
+import { useEncounter } from '../hooks/useEncounter';
 import { useAuthContext } from '../contexts/AuthContext';
 import TaskTabs from '../components/tasks/TaskTabs';
 import TaskList from '../components/tasks/TaskList';
@@ -14,12 +14,15 @@ export default function DashboardPage() {
   const { user, profile } = useAuthContext();
   const { tasks, loading, addTask, updateTask, deleteTask, scoreHabit, completeDaily, completeTodo } = useTasks();
   const { party } = usePartyContext();
-  const { dealDamage } = useBoss(party);
+  const { dealDamageToEncounter, getCurrentTarget } = useEncounter(party);
 
   const [activeTab, setActiveTab] = useState('habits');
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [damagePopup, setDamagePopup] = useState(null);
+
+  const target = getCurrentTarget();
+  const targetType = target?.type || 'boss';
 
   const showDamagePopup = useCallback((result) => {
     if (!result) return;
@@ -27,29 +30,34 @@ export default function DashboardPage() {
     setTimeout(() => setDamagePopup(null), 1500);
   }, []);
 
+  const handleDealDamage = useCallback(async (result, task) => {
+    if (!result || !party?.encounter) return;
+    await dealDamageToEncounter(result.damage, task, user.uid, profile.displayName);
+  }, [dealDamageToEncounter, party, user, profile]);
+
   const handleScore = useCallback(async (task, direction) => {
-    const result = await scoreHabit(task, direction);
-    if (result && party?.activeBoss && direction === 'up') {
-      await dealDamage(result.damage, task, user.uid, profile.displayName);
+    const result = await scoreHabit(task, direction, targetType);
+    if (result && party?.encounter && direction === 'up') {
+      await handleDealDamage(result, task);
     }
     showDamagePopup(result);
-  }, [scoreHabit, dealDamage, party, user, profile, showDamagePopup]);
+  }, [scoreHabit, handleDealDamage, party, targetType, showDamagePopup]);
 
   const handleCompleteDaily = useCallback(async (task) => {
-    const result = await completeDaily(task);
-    if (result && party?.activeBoss) {
-      await dealDamage(result.damage, task, user.uid, profile.displayName);
+    const result = await completeDaily(task, targetType);
+    if (result && party?.encounter) {
+      await handleDealDamage(result, task);
     }
     showDamagePopup(result);
-  }, [completeDaily, dealDamage, party, user, profile, showDamagePopup]);
+  }, [completeDaily, handleDealDamage, party, targetType, showDamagePopup]);
 
   const handleCompleteTodo = useCallback(async (task) => {
-    const result = await completeTodo(task);
-    if (result && party?.activeBoss) {
-      await dealDamage(result.damage, task, user.uid, profile.displayName);
+    const result = await completeTodo(task, targetType);
+    if (result && party?.encounter) {
+      await handleDealDamage(result, task);
     }
     showDamagePopup(result);
-  }, [completeTodo, dealDamage, party, user, profile, showDamagePopup]);
+  }, [completeTodo, handleDealDamage, party, targetType, showDamagePopup]);
 
   const handleSaveTask = async (data, taskId) => {
     if (taskId) {
@@ -134,15 +142,15 @@ export default function DashboardPage() {
               textShadow: `0 0 15px ${COLORS.gold}`,
               marginTop: 4,
             }}>
-              LEVEL UP!
+              LEVEL UP! +1 SKILL POINT
             </div>
           )}
         </div>
       )}
 
-      {/* Boss Preview */}
-      {party?.activeBoss && (
-        <BossPreview boss={party.activeBoss} />
+      {/* Encounter Preview */}
+      {party?.encounter && target && (
+        <BossPreview boss={target.type === 'boss' ? target.data : null} minion={target.type === 'minion' ? target.data : null} encounterInfo={target} />
       )}
 
       {/* Task Tabs */}

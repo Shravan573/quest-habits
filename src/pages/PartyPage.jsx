@@ -1,5 +1,6 @@
 import { useAuthContext } from '../contexts/AuthContext';
 import { usePartyContext } from '../contexts/PartyContext';
+import { useEncounter } from '../hooks/useEncounter';
 import CreateParty from '../components/party/CreateParty';
 import JoinParty from '../components/party/JoinParty';
 import InviteCode from '../components/party/InviteCode';
@@ -12,7 +13,8 @@ import { auth } from '../firebase';
 
 export default function PartyPage() {
   const { user, profile } = useAuthContext();
-  const { party, loading, leaveParty, startBoss } = usePartyContext();
+  const { party, loading, leaveParty } = usePartyContext();
+  const { startEncounter } = useEncounter(party);
 
   const handleLeave = async () => {
     if (!user) return;
@@ -107,14 +109,14 @@ export default function PartyPage() {
       {/* Invite Code */}
       <InviteCode code={party.inviteCode} />
 
-      {/* Start Boss Button (if no active boss) */}
-      {!party.activeBoss && (
+      {/* Start Encounter Button (if no active encounter) */}
+      {!party.encounter && (
         <PixelButton
           variant="gold"
-          onClick={startBoss}
+          onClick={startEncounter}
           style={{ width: '100%', padding: `${SIZES.spacing * 2}px 0`, fontSize: SIZES.fontMd }}
         >
-          🐉 SUMMON BOSS
+          ⚔️ BEGIN ENCOUNTER
         </PixelButton>
       )}
 
