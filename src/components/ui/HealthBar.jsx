@@ -26,8 +26,8 @@ export default function HealthBar({ current, max, height = 16, showLabel = true,
           <div key={i} style={{
             flex: 1,
             height,
-            backgroundColor: i < filled ? color : '#222',
-            border: '1px solid #111',
+            backgroundColor: i < filled ? color : COLORS.barEmpty,
+            border: `1px solid ${COLORS.barBorder}`,
             transition: 'background-color 0.3s',
           }} />
         ))}

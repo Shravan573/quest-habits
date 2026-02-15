@@ -24,15 +24,15 @@ export default function BossHealthBar({ currentHp, maxHp }) {
         display: 'flex',
         gap: 2,
         padding: 3,
-        backgroundColor: '#111',
+        backgroundColor: COLORS.barBorder,
         border: `2px solid ${COLORS.border}`,
       }}>
         {Array.from({ length: SEGMENTS }).map((_, i) => (
           <div key={i} style={{
             flex: 1,
             height: 20,
-            backgroundColor: i < filled ? color : '#1a1a1a',
-            border: '1px solid #0a0a0a',
+            backgroundColor: i < filled ? color : COLORS.barEmpty,
+            border: `1px solid ${COLORS.bgDarkest}`,
             transition: 'background-color 0.3s',
             boxShadow: i < filled ? `0 0 4px ${color}44` : 'none',
           }} />

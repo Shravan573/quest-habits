@@ -19,7 +19,7 @@ export default function StatBar({ label, value, max, icon, color = COLORS.neonCy
           <span style={{ color }}>{value}{max ? `/${max}` : ''}</span>
         </div>
         {max && (
-          <div style={{ height: 8, backgroundColor: '#222', border: '1px solid #111' }}>
+          <div style={{ height: 8, backgroundColor: COLORS.barEmpty, border: `1px solid ${COLORS.barBorder}` }}>
             <div style={{
               height: '100%',
               width: `${percentage}%`,
