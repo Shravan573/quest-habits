@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useAuthContext } from '../contexts/AuthContext';
 import { usePartyContext } from '../contexts/PartyContext';
 import { useEncounter } from '../hooks/useEncounter';
 import { BOSSES, BOSS_ORDER } from '../data/bosses';
@@ -14,17 +15,40 @@ import PixelCard from '../components/ui/PixelCard';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 
 export default function BossArenaPage() {
+  const { user } = useAuthContext();
   const { party, loading } = usePartyContext();
-  const { startEncounter, getCurrentTarget } = useEncounter(party);
+  const { startEncounter, getCurrentTarget, defeatBoss, forceResetBoss, claimBossRewards, clearEncounter } = useEncounter(party);
   const [hit, setHit] = useState(false);
   const [damageNumbers, setDamageNumbers] = useState([]);
-  const [showDefeatModal, setShowDefeatModal] = useState(false);
-  const [lastDefeatedBoss, setLastDefeatedBoss] = useState(null);
+  const [dismissedVictory, setDismissedVictory] = useState(false);
+  const [encounterLoading, setEncounterLoading] = useState(false);
+  const [encounterError, setEncounterError] = useState(null);
   const prevHpRef = useRef(null);
-  const prevPhaseRef = useRef(null);
 
   const encounter = party?.encounter;
   const target = getCurrentTarget();
+  const isVictory = encounter?.phase === 'victory';
+
+  // Reset dismissed state when a new encounter starts
+  useEffect(() => {
+    if (encounter?.phase === 'minions' || encounter?.phase === 'boss') {
+      setDismissedVictory(false);
+    }
+  }, [encounter?.phase]);
+
+  // Auto-recover stuck state: boss at 0 HP but phase never moved to 'victory'
+  useEffect(() => {
+    if (encounter?.phase === 'boss' && encounter.boss?.currentHp <= 0 && party?.id) {
+      defeatBoss(party.id);
+    }
+  }, [encounter?.phase, encounter?.boss?.currentHp, party?.id]);
+
+  // Auto-claim rewards when victory is detected
+  useEffect(() => {
+    if (isVictory && user?.uid && !encounter?.rewardsClaimedBy?.includes(user.uid)) {
+      claimBossRewards(user.uid);
+    }
+  }, [isVictory, user?.uid, encounter?.rewardsClaimedBy]);
 
   // Detect HP changes for hit animation + floating damage numbers
   useEffect(() => {
@@ -43,26 +67,46 @@ export default function BossArenaPage() {
     prevHpRef.current = currentHp;
   }, [target?.data?.currentHp]);
 
-  // Detect encounter victory
-  useEffect(() => {
-    if (!encounter) return;
-    if (encounter.phase === 'victory' && prevPhaseRef.current === 'boss') {
-      const defeatedIndex = Math.min((party.bossLevel || 1) - 1, BOSS_ORDER.length - 1);
-      setLastDefeatedBoss(BOSS_ORDER[defeatedIndex]);
-      setShowDefeatModal(true);
-    }
-    prevPhaseRef.current = encounter.phase;
-  }, [encounter?.phase, party?.bossLevel]);
-
   const handleStartEncounter = async () => {
-    await startEncounter();
+    setDamageNumbers([]);
+    setDismissedVictory(false);
+    setEncounterError(null);
+    setEncounterLoading(true);
+    try {
+      const result = await startEncounter();
+      if (result && !result.success) {
+        setEncounterError(result.error);
+      }
+    } catch (err) {
+      setEncounterError(err.message || 'Unknown error');
+    } finally {
+      setEncounterLoading(false);
+    }
   };
 
   const handleStartNext = async () => {
-    await startEncounter();
-    setShowDefeatModal(false);
-    setLastDefeatedBoss(null);
     setDamageNumbers([]);
+    setDismissedVictory(false);
+    setEncounterError(null);
+    setEncounterLoading(true);
+    try {
+      const result = await startEncounter();
+      if (result && !result.success) {
+        setEncounterError(result.error);
+      }
+    } catch (err) {
+      setEncounterError(err.message || 'Unknown error');
+    } finally {
+      setEncounterLoading(false);
+    }
+  };
+
+  // Figure out which boss was just defeated (for the victory modal)
+  const getDefeatedBossKey = () => {
+    if (!isVictory) return null;
+    // bossLevel was already incremented, so subtract 1
+    const defeatedIndex = Math.min((party.bossLevel || 1) - 1, BOSS_ORDER.length - 1);
+    return BOSS_ORDER[defeatedIndex];
   };
 
   if (loading) {
@@ -106,12 +150,13 @@ export default function BossArenaPage() {
     );
   }
 
-  // No active encounter — show summon screen
-  if (!encounter || encounter.phase === 'victory') {
+  // Victory or no encounter — show summon screen
+  if (!encounter || isVictory) {
     const bossIndex = Math.min(party.bossLevel || 0, BOSS_ORDER.length - 1);
     const nextBossKey = BOSS_ORDER[bossIndex];
     const nextBoss = BOSSES[nextBossKey];
     const minions = BOSS_MINIONS[nextBossKey] || [];
+    const defeatedBossKey = getDefeatedBossKey();
 
     return (
       <div style={{
@@ -212,16 +257,49 @@ export default function BossArenaPage() {
         <PixelButton
           variant="gold"
           onClick={handleStartEncounter}
-          style={{ width: '100%', padding: `${SIZES.spacing * 2}px 0`, fontSize: SIZES.fontMd }}
+          disabled={encounterLoading}
+          style={{ width: '100%', padding: `${SIZES.spacing * 2}px 0`, fontSize: SIZES.fontMd, opacity: encounterLoading ? 0.6 : 1 }}
         >
-          ⚔️ BEGIN ENCOUNTER
+          {encounterLoading ? '⏳ STARTING...' : '⚔️ BEGIN ENCOUNTER'}
         </PixelButton>
 
-        {showDefeatModal && lastDefeatedBoss && (
+        {/* Force defeat stuck boss — shows when old activeBoss is at 0 HP */}
+        {party.activeBoss && party.activeBoss.currentHp <= 0 && !encounter && (
+          <PixelButton
+            variant="danger"
+            onClick={async () => {
+              const result = await forceResetBoss();
+              if (!result.success) {
+                setEncounterError(result.error);
+              }
+            }}
+            style={{ width: '100%', padding: `${SIZES.spacing}px 0`, marginTop: SIZES.spacing }}
+          >
+            💀 FORCE DEFEAT (STUCK BOSS)
+          </PixelButton>
+        )}
+
+        {encounterError && (
+          <div style={{
+            marginTop: SIZES.spacing,
+            padding: SIZES.spacing,
+            backgroundColor: '#330000',
+            border: `2px solid ${COLORS.fireRed}`,
+            fontFamily: FONTS.pixel,
+            fontSize: SIZES.fontXs,
+            color: COLORS.fireRed,
+            textAlign: 'center',
+          }}>
+            ERROR: {encounterError}
+          </div>
+        )}
+
+        {/* Victory modal — shown when encounter phase is 'victory' and not dismissed */}
+        {isVictory && !dismissedVictory && defeatedBossKey && (
           <BossDefeatModal
-            bossKey={lastDefeatedBoss}
+            bossKey={defeatedBossKey}
             onStartNext={handleStartNext}
-            onClose={() => setShowDefeatModal(false)}
+            onClose={() => { setDismissedVictory(true); clearEncounter(); }}
           />
         )}
       </div>
@@ -238,7 +316,6 @@ export default function BossArenaPage() {
     ? (currentTarget?.glowColor || COLORS.neonGreen)
     : (bossDef?.glowColor || COLORS.fireRed);
 
-  // For minion wave progress
   const totalMinions = encounter.minions?.length || 0;
   const defeatedMinions = encounter.minions?.filter(m => m.defeated).length || 0;
 
@@ -355,7 +432,7 @@ export default function BossArenaPage() {
         />
       </div>
 
-      {/* XP/Gold reward preview for current target */}
+      {/* XP/Gold reward preview */}
       {currentTarget && (
         <div style={{
           display: 'flex',
@@ -421,15 +498,6 @@ export default function BossArenaPage() {
         PARTY STATUS
       </div>
       <PartyMembers members={party.members} leaderId={party.leaderId} />
-
-      {/* Boss defeated modal */}
-      {showDefeatModal && lastDefeatedBoss && (
-        <BossDefeatModal
-          bossKey={lastDefeatedBoss}
-          onStartNext={handleStartNext}
-          onClose={() => setShowDefeatModal(false)}
-        />
-      )}
     </div>
   );
 }

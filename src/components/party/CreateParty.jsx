@@ -21,7 +21,7 @@ export default function CreateParty() {
     try {
       await createParty(user.uid, profile.displayName, name.trim(), profile.level, profile.hp, profile.maxHp);
     } catch (err) {
-      setError('Failed to create party');
+      setError(err.message || 'Failed to create party');
     }
     setLoading(false);
   };

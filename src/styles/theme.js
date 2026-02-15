@@ -20,6 +20,9 @@ export const COLORS = {
   textMuted: '#555555',
   border: '#333366',
   borderLight: '#4a4a8a',
+
+  barEmpty: '#222222',
+  barBorder: '#111111',
 };
 
 export const FONTS = {

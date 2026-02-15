@@ -58,7 +58,7 @@ export default function JoinParty() {
             {error}
           </div>
         )}
-        <PixelButton disabled={loading} style={{ width: '100%' }}>
+        <PixelButton variant="gold" disabled={loading} style={{ width: '100%' }}>
           {loading ? 'JOINING...' : 'JOIN PARTY'}
         </PixelButton>
       </form>
