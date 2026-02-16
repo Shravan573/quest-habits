@@ -61,7 +61,7 @@ export default function DailyItem({ task, onComplete, onEdit }) {
         <div style={{ display: 'flex', gap: SIZES.spacing, alignItems: 'center' }}>
           <span style={{
             fontFamily: FONTS.pixel,
-            fontSize: 7,
+            fontSize: SIZES.fontXs,
             color: DIFFICULTY_COLORS[task.difficulty],
             textTransform: 'uppercase',
           }}>

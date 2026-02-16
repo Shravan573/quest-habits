@@ -111,7 +111,7 @@ export default function ShopPage() {
                 </div>
                 <div style={{
                   fontFamily: FONTS.pixel,
-                  fontSize: 7,
+                  fontSize: SIZES.fontXs,
                   color: item ? COLORS.textPrimary : COLORS.textMuted,
                 }}>
                   {item ? item.name : 'Empty'}
@@ -130,22 +130,22 @@ export default function ShopPage() {
           borderTop: `1px solid ${COLORS.border}`,
         }}>
           {eqStats.attack > 0 && (
-            <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.fireRed }}>
+            <span style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.fireRed }}>
               +{eqStats.attack} ATK
             </span>
           )}
           {eqStats.maxHp > 0 && (
-            <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.neonGreen }}>
+            <span style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.neonGreen }}>
               +{eqStats.maxHp} HP
             </span>
           )}
           {eqStats.goldBonus > 0 && (
-            <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.gold }}>
+            <span style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.gold }}>
               +{eqStats.goldBonus}% GOLD
             </span>
           )}
           {eqStats.xpBonus > 0 && (
-            <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.neonCyan }}>
+            <span style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.neonCyan }}>
               +{eqStats.xpBonus}% XP
             </span>
           )}
@@ -162,7 +162,7 @@ export default function ShopPage() {
               flex: 1,
               padding: `${SIZES.spacing}px 0`,
               fontFamily: FONTS.pixel,
-              fontSize: 7,
+              fontSize: SIZES.fontXs,
               border: `${SIZES.borderWidth}px solid ${activeSlot === slot ? COLORS.gold : COLORS.border}`,
               backgroundColor: activeSlot === slot ? 'rgba(255, 215, 0, 0.1)' : COLORS.bgDark,
               color: activeSlot === slot ? COLORS.gold : COLORS.textMuted,
@@ -219,7 +219,7 @@ export default function ShopPage() {
                   </div>
                   <div style={{
                     fontFamily: FONTS.pixel,
-                    fontSize: 7,
+                    fontSize: SIZES.fontXs,
                     color: COLORS.textMuted,
                     marginBottom: 4,
                   }}>
@@ -240,7 +240,7 @@ export default function ShopPage() {
                       return (
                         <span key={stat} style={{
                           fontFamily: FONTS.pixel,
-                          fontSize: 7,
+                          fontSize: SIZES.fontXs,
                           color: l.color,
                         }}>
                           +{val} {l.label}
@@ -269,7 +269,7 @@ export default function ShopPage() {
                     >
                       <div>
                         <div style={{ fontSize: SIZES.fontXs }}>BUY</div>
-                        <div style={{ fontSize: 7 }}>🪙{item.cost}</div>
+                        <div style={{ fontSize: SIZES.fontXs }}>🪙{item.cost}</div>
                       </div>
                     </PixelButton>
                   )}

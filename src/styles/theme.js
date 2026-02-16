@@ -30,13 +30,13 @@ export const FONTS = {
 };
 
 export const SIZES = {
-  fontXs: 8,
-  fontSm: 10,
-  fontMd: 12,
-  fontLg: 16,
-  fontXl: 20,
-  fontTitle: 24,
-  spacing: 8,
+  fontXs: 10,
+  fontSm: 12,
+  fontMd: 14,
+  fontLg: 18,
+  fontXl: 24,
+  fontTitle: 28,
+  spacing: 10,
   borderWidth: 3,
 };
 

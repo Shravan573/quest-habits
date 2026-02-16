@@ -51,7 +51,7 @@ export default function PartyMembers({ members, leaderId }) {
                 {uid === leaderId && (
                   <span style={{
                     fontFamily: FONTS.pixel,
-                    fontSize: 7,
+                    fontSize: SIZES.fontXs,
                     color: COLORS.gold,
                   }}>
                     👑 LEADER
@@ -60,7 +60,7 @@ export default function PartyMembers({ members, leaderId }) {
               </div>
               <div style={{
                 fontFamily: FONTS.pixel,
-                fontSize: 7,
+                fontSize: SIZES.fontXs,
                 color: COLORS.textMuted,
                 marginBottom: 4,
               }}>

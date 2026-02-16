@@ -36,8 +36,9 @@ export default function DashboardPage() {
   }, [dealDamageToEncounter, party, user, profile]);
 
   const handleScore = useCallback(async (task, direction) => {
-    const result = await scoreHabit(task, direction, targetType);
-    if (result && party?.encounter && direction === 'up') {
+    const activeBoss = party?.encounter?.boss || party?.activeBoss;
+    const result = await scoreHabit(task, direction, targetType, activeBoss);
+    if (result && direction === 'up' && party?.encounter) {
       await handleDealDamage(result, task);
     }
     showDamagePopup(result);
@@ -104,7 +105,7 @@ export default function DashboardPage() {
 
   return (
     <div style={{ padding: SIZES.spacing * 2, position: 'relative' }}>
-      {/* Damage popup */}
+      {/* Damage popup — positive (green) or negative habit (red) */}
       {damagePopup && (
         <div style={{
           position: 'fixed',
@@ -116,34 +117,60 @@ export default function DashboardPage() {
           animation: 'damageFloat 1.5s ease-out forwards',
           pointerEvents: 'none',
         }}>
-          {damagePopup.damage > 0 && (
-            <div style={{
-              fontFamily: FONTS.pixel,
-              fontSize: SIZES.fontXl,
-              color: COLORS.neonGreen,
-              textShadow: `0 0 10px ${COLORS.neonGreen}`,
-            }}>
-              ⚔️ -{damagePopup.damage}
-            </div>
-          )}
-          <div style={{
-            fontFamily: FONTS.pixel,
-            fontSize: SIZES.fontSm,
-            color: COLORS.gold,
-            marginTop: 4,
-          }}>
-            +{damagePopup.xp} XP  +{damagePopup.gold} 🪙
-          </div>
-          {damagePopup.levelUp && (
-            <div style={{
-              fontFamily: FONTS.pixel,
-              fontSize: SIZES.fontLg,
-              color: COLORS.gold,
-              textShadow: `0 0 15px ${COLORS.gold}`,
-              marginTop: 4,
-            }}>
-              LEVEL UP! +1 SKILL POINT
-            </div>
+          {damagePopup.bossDamage ? (
+            <>
+              <div style={{
+                fontFamily: FONTS.pixel,
+                fontSize: SIZES.fontXl,
+                color: COLORS.fireRed,
+                textShadow: `0 0 10px ${COLORS.fireRed}`,
+              }}>
+                BOSS HIT! -{damagePopup.bossDamage} HP
+              </div>
+              {damagePopup.died && (
+                <div style={{
+                  fontFamily: FONTS.pixel,
+                  fontSize: SIZES.fontLg,
+                  color: COLORS.fireRed,
+                  textShadow: `0 0 15px ${COLORS.fireRed}`,
+                  marginTop: 4,
+                }}>
+                  YOU DIED! -1 LEVEL -10 GOLD
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {damagePopup.damage > 0 && (
+                <div style={{
+                  fontFamily: FONTS.pixel,
+                  fontSize: SIZES.fontXl,
+                  color: COLORS.neonGreen,
+                  textShadow: `0 0 10px ${COLORS.neonGreen}`,
+                }}>
+                  -{damagePopup.damage}
+                </div>
+              )}
+              <div style={{
+                fontFamily: FONTS.pixel,
+                fontSize: SIZES.fontSm,
+                color: COLORS.gold,
+                marginTop: 4,
+              }}>
+                +{damagePopup.xp} XP  +{damagePopup.gold}G
+              </div>
+              {damagePopup.levelUp && (
+                <div style={{
+                  fontFamily: FONTS.pixel,
+                  fontSize: SIZES.fontLg,
+                  color: COLORS.gold,
+                  textShadow: `0 0 15px ${COLORS.gold}`,
+                  marginTop: 4,
+                }}>
+                  LEVEL UP! +1 SKILL POINT
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

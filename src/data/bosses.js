@@ -84,6 +84,42 @@ const CHAOS_PIXELS = [
   [0,8,'#ffff00'],[1,8,'#ff0000'],[2,8,'#000000'],[5,8,'#000000'],[6,8,'#ff0000'],[7,8,'#ffff00'],
 ];
 
+const FROST_LICH_PIXELS = [
+  [3,0,'#88ccff'],[4,0,'#88ccff'],
+  [2,1,'#4488bb'],[3,1,'#aaddff'],[4,1,'#aaddff'],[5,1,'#4488bb'],
+  [2,2,'#00ffff'],[3,2,'#4488bb'],[4,2,'#4488bb'],[5,2,'#00ffff'],
+  [2,3,'#4488bb'],[3,3,'#88ccff'],[4,3,'#88ccff'],[5,3,'#4488bb'],
+  [1,4,'#aaddff'],[2,4,'#4488bb'],[3,4,'#00ffff'],[4,4,'#00ffff'],[5,4,'#4488bb'],[6,4,'#aaddff'],
+  [0,5,'#4488bb'],[1,5,'#88ccff'],[2,5,'#aaddff'],[3,5,'#4488bb'],[4,5,'#4488bb'],[5,5,'#aaddff'],[6,5,'#88ccff'],[7,5,'#4488bb'],
+  [1,6,'#4488bb'],[2,6,'#88ccff'],[3,6,'#88ccff'],[4,6,'#88ccff'],[5,6,'#88ccff'],[6,6,'#4488bb'],
+  [2,7,'#4488bb'],[3,7,'#4488bb'],[4,7,'#4488bb'],[5,7,'#4488bb'],
+  [1,8,'#88ccff'],[2,8,'#4488bb'],[5,8,'#4488bb'],[6,8,'#88ccff'],
+];
+
+const KRAKEN_PIXELS = [
+  [1,0,'#003366'],[6,0,'#003366'],
+  [0,1,'#0066cc'],[1,1,'#004488'],[2,1,'#0066cc'],[5,1,'#0066cc'],[6,1,'#004488'],[7,1,'#0066cc'],
+  [1,2,'#0066cc'],[2,2,'#ffffff'],[3,2,'#004488'],[4,2,'#004488'],[5,2,'#ffffff'],[6,2,'#0066cc'],
+  [1,3,'#004488'],[2,3,'#0066cc'],[3,3,'#004488'],[4,3,'#004488'],[5,3,'#0066cc'],[6,3,'#004488'],
+  [0,4,'#0066cc'],[1,4,'#004488'],[2,4,'#004488'],[3,4,'#0066cc'],[4,4,'#0066cc'],[5,4,'#004488'],[6,4,'#004488'],[7,4,'#0066cc'],
+  [0,5,'#003366'],[1,5,'#0066cc'],[2,5,'#0066cc'],[3,5,'#003366'],[4,5,'#003366'],[5,5,'#0066cc'],[6,5,'#0066cc'],[7,5,'#003366'],
+  [0,6,'#0066cc'],[1,6,'#003366'],[2,6,'#0066cc'],[3,6,'#0066cc'],[4,6,'#0066cc'],[5,6,'#0066cc'],[6,6,'#003366'],[7,6,'#0066cc'],
+  [0,7,'#003366'],[2,7,'#003366'],[3,7,'#004488'],[4,7,'#004488'],[5,7,'#003366'],[7,7,'#003366'],
+  [0,8,'#004488'],[1,8,'#003366'],[3,8,'#003366'],[4,8,'#003366'],[6,8,'#003366'],[7,8,'#004488'],
+];
+
+const ETERNAL_DRAGON_PIXELS = [
+  [1,0,'#ffaa00'],[2,0,'#ff6600'],[5,0,'#ff6600'],[6,0,'#ffaa00'],
+  [0,1,'#ffaa00'],[1,1,'#ffcc00'],[2,1,'#ffaa00'],[5,1,'#ffaa00'],[6,1,'#ffcc00'],[7,1,'#ffaa00'],
+  [1,2,'#ffcc00'],[2,2,'#ffffff'],[3,2,'#ffcc00'],[4,2,'#ffcc00'],[5,2,'#ffffff'],[6,2,'#ffcc00'],
+  [1,3,'#ff6600'],[2,3,'#ffcc00'],[3,3,'#ffaa00'],[4,3,'#ffaa00'],[5,3,'#ffcc00'],[6,3,'#ff6600'],
+  [0,4,'#ffaa00'],[1,4,'#ff6600'],[2,4,'#ffcc00'],[3,4,'#ff6600'],[4,4,'#ff6600'],[5,4,'#ffcc00'],[6,4,'#ff6600'],[7,4,'#ffaa00'],
+  [0,5,'#ff6600'],[1,5,'#ffaa00'],[2,5,'#ff6600'],[3,5,'#ffcc00'],[4,5,'#ffcc00'],[5,5,'#ff6600'],[6,5,'#ffaa00'],[7,5,'#ff6600'],
+  [1,6,'#ff6600'],[2,6,'#ffaa00'],[3,6,'#ff6600'],[4,6,'#ff6600'],[5,6,'#ffaa00'],[6,6,'#ff6600'],
+  [1,7,'#cc4400'],[2,7,'#ff6600'],[3,7,'#ffaa00'],[4,7,'#ffaa00'],[5,7,'#ff6600'],[6,7,'#cc4400'],
+  [0,8,'#ffaa00'],[1,8,'#cc4400'],[2,8,'#ff6600'],[5,8,'#ff6600'],[6,8,'#cc4400'],[7,8,'#ffaa00'],
+];
+
 export const BOSSES = {
   slime_king: {
     key: 'slime_king',
@@ -169,6 +205,42 @@ export const BOSSES = {
     pixels: CHAOS_PIXELS,
     glowColor: '#ffff00',
   },
+  frost_lich: {
+    key: 'frost_lich',
+    name: 'Frost Lich',
+    level: 8,
+    maxHp: 2000,
+    attackPower: 35,
+    rewards: { xp: 700, gold: 350 },
+    emoji: '🧊',
+    description: 'An ancient sorcerer encased in eternal ice.',
+    pixels: FROST_LICH_PIXELS,
+    glowColor: '#88ccff',
+  },
+  abyssal_kraken: {
+    key: 'abyssal_kraken',
+    name: 'Abyssal Kraken',
+    level: 9,
+    maxHp: 2500,
+    attackPower: 40,
+    rewards: { xp: 900, gold: 450 },
+    emoji: '🐙',
+    description: 'Terror of the deep. Its tentacles span leagues.',
+    pixels: KRAKEN_PIXELS,
+    glowColor: '#0066cc',
+  },
+  eternal_dragon: {
+    key: 'eternal_dragon',
+    name: 'Eternal Dragon',
+    level: 10,
+    maxHp: 3000,
+    attackPower: 50,
+    rewards: { xp: 1200, gold: 600 },
+    emoji: '🐲',
+    description: 'The world-ender. First and last of its kind.',
+    pixels: ETERNAL_DRAGON_PIXELS,
+    glowColor: '#ffaa00',
+  },
 };
 
 export const BOSS_ORDER = [
@@ -179,4 +251,7 @@ export const BOSS_ORDER = [
   'lich_emperor',
   'void_titan',
   'chaos_god',
+  'frost_lich',
+  'abyssal_kraken',
+  'eternal_dragon',
 ];

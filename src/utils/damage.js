@@ -35,15 +35,19 @@ export function calculateDamage(task, profile, targetType = 'boss') {
 
   // Skill percentage bonuses per task type
   let skillPercent = 0;
+  skillPercent += getSkillEffect(skills, 'all_damage_percent');
   if (task.type === 'daily') skillPercent += getSkillEffect(skills, 'daily_damage_percent');
   if (task.type === 'habit') skillPercent += getSkillEffect(skills, 'habit_damage_percent');
   if (task.type === 'todo') skillPercent += getSkillEffect(skills, 'todo_damage_percent');
 
-  // Minion-specific bonuses
+  // Target-specific bonuses
   let minionBonus = 0;
   if (targetType === 'minion') {
     minionBonus += getSkillEffect(skills, 'minion_damage_percent');
     minionBonus += (eqStats.minionDamage || 0);
+  }
+  if (targetType === 'boss') {
+    skillPercent += getSkillEffect(skills, 'boss_damage_percent');
   }
 
   // Low HP berserker bonus
@@ -79,6 +83,25 @@ export function calculateBossAttack(missedDailyCount, bossAttackPower, profile) 
   const finalDamage = baseDamage * (1 - totalReduction / 100);
 
   return Math.round(finalDamage * 10) / 10;
+}
+
+export function calculateNegativeHabitDamage(task, bossAttackPower, profile) {
+  const skills = profile?.skills || {};
+  const equipment = profile?.equipment || {};
+  const difficulty = DIFFICULTY_MULTIPLIERS[task.difficulty] || 1.0;
+
+  const baseDamage = bossAttackPower * difficulty * 0.5;
+
+  // Damage reduction from skills + equipment
+  const damageReduction = getSkillEffect(skills, 'damage_reduction_percent');
+  const purifyReduction = getSkillEffect(skills, 'negative_habit_reduction');
+  const eqStats = getEquipmentStats(equipment);
+  const eqReduction = eqStats.damageReduction || 0;
+
+  const totalReduction = Math.min(damageReduction + purifyReduction + eqReduction, 75);
+  const finalDamage = baseDamage * (1 - totalReduction / 100);
+
+  return Math.max(1, Math.round(finalDamage * 10) / 10);
 }
 
 export function calculateTaskRewards(task, profile) {

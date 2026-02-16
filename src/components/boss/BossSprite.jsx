@@ -1,5 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { BOSSES } from '../../data/bosses';
+
+const BASE_URL = import.meta.env.BASE_URL || '/';
 
 function generateBoxShadow(pixels, scale) {
   if (!pixels || pixels.length === 0) return 'none';
@@ -8,11 +10,68 @@ function generateBoxShadow(pixels, scale) {
   ).join(', ');
 }
 
-export default function BossSprite({ bossKey, pixels: customPixels, glowColor: customGlow, scale = 6, animate = true, hit = false }) {
+export default function BossSprite({ bossKey, minionKey, pixels: customPixels, glowColor: customGlow, scale = 6, animate = true, hit = false }) {
+  const [imgError, setImgError] = useState(false);
+
   const boss = bossKey ? BOSSES[bossKey] : null;
   const pixels = customPixels || boss?.pixels;
   const glowColor = customGlow || boss?.glowColor || '#ff0000';
 
+  // Determine image path: boss or minion
+  const imgSrc = bossKey
+    ? `${BASE_URL}sprites/bosses/${bossKey}.png`
+    : minionKey
+      ? `${BASE_URL}sprites/minions/${minionKey}.png`
+      : null;
+
+  const showImage = imgSrc && !imgError;
+
+  // Image-based rendering
+  if (showImage) {
+    const imgSize = bossKey ? scale * 14 : scale * 10;
+
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: scale * 2,
+      }}>
+        <div style={{ position: 'relative' }}>
+          <img
+            src={imgSrc}
+            alt={boss?.name || minionKey || 'sprite'}
+            onError={() => setImgError(true)}
+            style={{
+              width: imgSize,
+              height: imgSize,
+              objectFit: 'contain',
+              imageRendering: 'pixelated',
+              animation: hit
+                ? 'bossHit 0.3s ease'
+                : animate
+                  ? 'bossBob 1.5s ease-in-out infinite'
+                  : 'none',
+              filter: hit ? 'brightness(2) drop-shadow(0 0 8px #fff)' : `drop-shadow(0 0 6px ${glowColor}66)`,
+              transition: 'filter 0.1s',
+            }}
+          />
+          <div style={{
+            position: 'absolute',
+            bottom: -4,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: imgSize * 0.7,
+            height: 8,
+            background: `radial-gradient(ellipse, ${glowColor}33 0%, transparent 70%)`,
+            borderRadius: '50%',
+          }} />
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback: CSS box-shadow pixel art
   const boxShadow = useMemo(() => {
     if (!pixels) return 'none';
     return generateBoxShadow(pixels, scale);

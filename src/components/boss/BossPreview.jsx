@@ -2,12 +2,19 @@ import { useNavigate } from 'react-router-dom';
 import { BOSSES } from '../../data/bosses';
 import { COLORS, FONTS, SIZES, PIXEL_BORDER } from '../../styles/theme';
 
+const BASE_URL = import.meta.env.BASE_URL || '/';
+
 export default function BossPreview({ boss, minion, encounterInfo }) {
   const navigate = useNavigate();
 
   const isMinion = !!minion;
   const target = isMinion ? minion : boss;
   const bossDef = !isMinion && boss ? BOSSES[boss.bossKey] : null;
+  const imgSrc = isMinion
+    ? `${BASE_URL}sprites/minions/${target.key}.png`
+    : boss?.bossKey
+      ? `${BASE_URL}sprites/bosses/${boss.bossKey}.png`
+      : null;
 
   if (!target) return null;
 
@@ -42,8 +49,19 @@ export default function BossPreview({ boss, minion, encounterInfo }) {
         fontSize: 22,
         flexShrink: 0,
         boxShadow: `0 0 8px ${glowColor}44`,
+        overflow: 'hidden',
       }}>
-        {isMinion ? (target.emoji || '👾') : (bossDef?.emoji || '🐉')}
+        {imgSrc ? (
+          <img
+            src={imgSrc}
+            alt={target.name || 'sprite'}
+            style={{ width: 36, height: 36, objectFit: 'contain', imageRendering: 'pixelated' }}
+            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+          />
+        ) : null}
+        <span style={{ display: imgSrc ? 'none' : 'block' }}>
+          {isMinion ? (target.emoji || '👾') : (bossDef?.emoji || '🐉')}
+        </span>
       </div>
 
       <div style={{ flex: 1 }}>
@@ -62,7 +80,7 @@ export default function BossPreview({ boss, minion, encounterInfo }) {
           </span>
           <span style={{
             fontFamily: FONTS.pixel,
-            fontSize: 7,
+            fontSize: SIZES.fontXs,
             color: barColor,
           }}>
             {currentHp}/{maxHp}
@@ -84,7 +102,7 @@ export default function BossPreview({ boss, minion, encounterInfo }) {
         {encounterInfo && (
           <div style={{
             fontFamily: FONTS.pixel,
-            fontSize: 7,
+            fontSize: SIZES.fontXs,
             color: COLORS.textMuted,
             marginTop: 2,
           }}>

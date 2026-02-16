@@ -3,6 +3,8 @@ import PixelModal from '../ui/PixelModal';
 import PixelButton from '../ui/PixelButton';
 import { COLORS, FONTS, SIZES } from '../../styles/theme';
 
+const BASE_URL = import.meta.env.BASE_URL || '/';
+
 export default function BossDefeatModal({ bossKey, onStartNext, onClose }) {
   const boss = BOSSES[bossKey];
   if (!boss) return null;
@@ -12,12 +14,17 @@ export default function BossDefeatModal({ bossKey, onStartNext, onClose }) {
       <div style={{ textAlign: 'center' }}>
         {/* Defeated boss */}
         <div style={{
-          fontSize: 64,
           marginBottom: SIZES.spacing * 2,
           opacity: 0.5,
           filter: 'grayscale(0.5)',
         }}>
-          {boss.emoji}
+          <img
+            src={`${BASE_URL}sprites/bosses/${bossKey}.png`}
+            alt={boss.name}
+            style={{ width: 96, height: 96, objectFit: 'contain', imageRendering: 'pixelated' }}
+            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+          />
+          <span style={{ fontSize: 64, display: 'none' }}>{boss.emoji}</span>
         </div>
 
         <div style={{
@@ -49,13 +56,13 @@ export default function BossDefeatModal({ bossKey, onStartNext, onClose }) {
               <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontLg, color: COLORS.neonCyan }}>
                 +{boss.rewards.xp}
               </div>
-              <div style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.textMuted }}>XP</div>
+              <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.textMuted }}>XP</div>
             </div>
             <div>
               <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontLg, color: COLORS.gold }}>
                 +{boss.rewards.gold}
               </div>
-              <div style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.textMuted }}>GOLD</div>
+              <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.textMuted }}>GOLD</div>
             </div>
           </div>
         </div>

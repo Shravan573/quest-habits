@@ -2,6 +2,7 @@ import { doc, updateDoc, runTransaction, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { BOSSES, BOSS_ORDER } from '../data/bosses';
 import { BOSS_MINIONS } from '../data/minions';
+import { getSkillEffect } from '../data/classes';
 
 export function useEncounter(party) {
 
@@ -104,8 +105,10 @@ export function useEncounter(party) {
           const userSnap = await getDoc(userRef);
           if (userSnap.exists()) {
             const userData = userSnap.data();
+            const minionGoldBonus = getSkillEffect(userData.skills || {}, 'minion_gold_percent');
+            const bonusGold = Math.round(minion.gold * (1 + minionGoldBonus / 100));
             const newXp = userData.xp + minion.xp;
-            const newGold = userData.gold + minion.gold;
+            const newGold = userData.gold + bonusGold;
 
             const xpNeeded = 100 * userData.level;
             if (newXp >= xpNeeded) {
