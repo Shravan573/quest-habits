@@ -94,7 +94,7 @@ export default function ClassSelectPage() {
               </div>
               <div style={{
                 fontFamily: FONTS.pixel,
-                fontSize: 7,
+                fontSize: SIZES.fontXs,
                 color: COLORS.textMuted,
                 lineHeight: 1.6,
                 marginBottom: SIZES.spacing,
@@ -103,12 +103,12 @@ export default function ClassSelectPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: SIZES.spacing * 2 }}>
                 <div>
-                  <div style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.fireRed }}>
+                  <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.fireRed }}>
                     ❤️ {cls.baseStats.hp}
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.neonGreen }}>
+                  <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.neonGreen }}>
                     ⚔️ {cls.baseStats.attack}
                   </div>
                 </div>
@@ -142,10 +142,10 @@ export default function ClassSelectPage() {
               }}>
                 <span style={{ fontSize: 16, width: 24, textAlign: 'center' }}>{skill.emoji}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.textPrimary }}>
+                  <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.textPrimary }}>
                     {skill.name}
                   </div>
-                  <div style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.textMuted }}>
+                  <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.textMuted }}>
                     {skill.description}
                   </div>
                 </div>

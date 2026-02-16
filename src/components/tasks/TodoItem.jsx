@@ -61,14 +61,14 @@ export default function TodoItem({ task, onComplete, onDelete, onEdit }) {
         <div style={{ display: 'flex', gap: SIZES.spacing, alignItems: 'center' }}>
           <span style={{
             fontFamily: FONTS.pixel,
-            fontSize: 7,
+            fontSize: SIZES.fontXs,
             color: DIFFICULTY_COLORS[task.difficulty],
             textTransform: 'uppercase',
           }}>
             {task.difficulty}
           </span>
           {task.dueDate && (
-            <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.textMuted }}>
+            <span style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.textMuted }}>
               Due: {new Date(task.dueDate).toLocaleDateString()}
             </span>
           )}

@@ -31,7 +31,7 @@ export default function DamageFeed({ feed }) {
             backgroundColor: isDealt ? 'rgba(57, 255, 20, 0.05)' : 'rgba(255, 68, 68, 0.05)',
             borderLeft: `3px solid ${isDealt ? COLORS.neonGreen : COLORS.fireRed}`,
             fontFamily: FONTS.pixel,
-            fontSize: 7,
+            fontSize: SIZES.fontXs,
             color: COLORS.textSecondary,
             display: 'flex',
             justifyContent: 'space-between',

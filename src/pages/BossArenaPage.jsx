@@ -14,6 +14,8 @@ import PixelButton from '../components/ui/PixelButton';
 import PixelCard from '../components/ui/PixelCard';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 
+const BASE_URL = import.meta.env.BASE_URL || '/';
+
 export default function BossArenaPage() {
   const { user } = useAuthContext();
   const { party, loading } = usePartyContext();
@@ -173,8 +175,8 @@ export default function BossArenaPage() {
         </div>
 
         <PixelCard style={{ marginBottom: SIZES.spacing * 2 }}>
-          <div style={{ fontSize: 64, marginBottom: SIZES.spacing }}>
-            {nextBoss?.emoji || '🐉'}
+          <div style={{ marginBottom: SIZES.spacing }}>
+            <BossSprite bossKey={nextBossKey} scale={8} animate={true} hit={false} />
           </div>
           <div style={{
             fontFamily: FONTS.pixel,
@@ -224,7 +226,7 @@ export default function BossArenaPage() {
             }}>
               <div style={{
                 fontFamily: FONTS.pixel,
-                fontSize: 7,
+                fontSize: SIZES.fontXs,
                 color: COLORS.textMuted,
                 marginBottom: SIZES.spacing,
               }}>
@@ -243,8 +245,14 @@ export default function BossArenaPage() {
                     padding: '4px 6px',
                     textAlign: 'center',
                   }}>
-                    <div style={{ fontSize: 16 }}>{m.emoji}</div>
-                    <div style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.textMuted }}>
+                    <img
+                      src={`${BASE_URL}sprites/minions/${m.key}.png`}
+                      alt={m.name}
+                      style={{ width: 32, height: 32, objectFit: 'contain', imageRendering: 'pixelated' }}
+                      onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+                    />
+                    <span style={{ fontSize: 16, display: 'none' }}>{m.emoji}</span>
+                    <div style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.textMuted }}>
                       {m.maxHp}HP
                     </div>
                   </div>
@@ -345,7 +353,7 @@ export default function BossArenaPage() {
         {isMinionPhase && (
           <div style={{
             fontFamily: FONTS.pixel,
-            fontSize: 7,
+            fontSize: SIZES.fontXs,
             color: COLORS.textMuted,
           }}>
             WAVE {defeatedMinions + 1}/{totalMinions} · Boss: {encounter.boss.name}
@@ -354,7 +362,7 @@ export default function BossArenaPage() {
         {isBossPhase && (
           <div style={{
             fontFamily: FONTS.pixel,
-            fontSize: 7,
+            fontSize: SIZES.fontXs,
             color: COLORS.textMuted,
           }}>
             LV.{encounter.boss.level} · ATK {encounter.boss.attackPower}
@@ -384,7 +392,7 @@ export default function BossArenaPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 7,
+              fontSize: SIZES.fontXs,
             }}>
               {m.defeated ? '✓' : ''}
             </div>
@@ -405,6 +413,7 @@ export default function BossArenaPage() {
       }}>
         {isMinionPhase ? (
           <BossSprite
+            minionKey={currentTarget?.key}
             pixels={currentTarget?.pixels}
             glowColor={currentTarget?.glowColor}
             scale={8}
@@ -442,20 +451,20 @@ export default function BossArenaPage() {
         }}>
           {isMinionPhase && (
             <>
-              <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.neonCyan }}>
+              <span style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.neonCyan }}>
                 +{currentTarget.xp} XP
               </span>
-              <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.gold }}>
+              <span style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.gold }}>
                 +{currentTarget.gold} 🪙
               </span>
             </>
           )}
           {isBossPhase && encounter.boss.rewards && (
             <>
-              <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.neonCyan }}>
+              <span style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.neonCyan }}>
                 +{encounter.boss.rewards.xp} XP
               </span>
-              <span style={{ fontFamily: FONTS.pixel, fontSize: 7, color: COLORS.gold }}>
+              <span style={{ fontFamily: FONTS.pixel, fontSize: SIZES.fontXs, color: COLORS.gold }}>
                 +{encounter.boss.rewards.gold} 🪙
               </span>
             </>

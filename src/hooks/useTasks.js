@@ -3,7 +3,8 @@ import {
   collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import { calculateDamage, calculateTaskRewards, checkLevelUp } from '../utils/damage';
+import { calculateDamage, calculateNegativeHabitDamage, calculateTaskRewards, checkLevelUp } from '../utils/damage';
+import { getSkillEffect } from '../data/classes';
 import { useAuthContext } from '../contexts/AuthContext';
 
 export function useTasks() {
@@ -70,7 +71,7 @@ export function useTasks() {
     }
   };
 
-  const scoreHabit = async (task, direction, targetType) => {
+  const scoreHabit = async (task, direction, targetType, activeBoss) => {
     if (!user || !profile) return null;
 
     const updates = {};
@@ -87,9 +88,12 @@ export function useTasks() {
       const newXp = profile.xp + xp;
       const levelUp = checkLevelUp(newXp, profile.level);
       await applyRewards(xp, gold, levelUp);
+      await applySkillHeal('heal_on_habit');
       return { damage, xp, gold, levelUp: !!levelUp };
     }
-    return null;
+
+    // Negative habit — boss attacks the player
+    return await applyNegativeHabit(task, activeBoss);
   };
 
   const completeDaily = async (task, targetType) => {
@@ -104,6 +108,7 @@ export function useTasks() {
     const newXp = profile.xp + xp;
     const levelUp = checkLevelUp(newXp, profile.level);
     await applyRewards(xp, gold, levelUp);
+    await applySkillHeal('heal_on_daily');
     return { damage, xp, gold, levelUp: !!levelUp };
   };
 
@@ -118,7 +123,44 @@ export function useTasks() {
     const newXp = profile.xp + xp;
     const levelUp = checkLevelUp(newXp, profile.level);
     await applyRewards(xp, gold, levelUp);
+    await applySkillHeal('heal_on_todo');
     return { damage, xp, gold, levelUp: !!levelUp };
+  };
+
+  const applyNegativeHabit = async (task, activeBoss) => {
+    if (!user || !profile) return null;
+    const bossAtk = activeBoss?.attackPower || 5; // fallback if no boss
+    const bossDamage = calculateNegativeHabitDamage(task, bossAtk, profile);
+    const newHp = Math.max(0, profile.hp - bossDamage);
+
+    const userRef = doc(db, 'users', user.uid);
+    if (newHp <= 0) {
+      // Death penalty: lose a level (min 1), restore HP, lose gold
+      const newLevel = Math.max(1, profile.level - 1);
+      const newMaxHp = 50 + (newLevel * 5);
+      await updateDoc(userRef, {
+        hp: newMaxHp,
+        maxHp: newMaxHp,
+        level: newLevel,
+        gold: Math.max(0, profile.gold - 10),
+      });
+      return { bossDamage, hpLost: profile.hp, died: true };
+    } else {
+      await updateDoc(userRef, { hp: newHp });
+      return { bossDamage, hpLost: bossDamage, died: false };
+    }
+  };
+
+  const applySkillHeal = async (effectType) => {
+    if (!user || !profile) return;
+    const skills = profile.skills || {};
+    const healAmount = getSkillEffect(skills, effectType);
+    if (healAmount <= 0) return;
+    const newHp = Math.min(profile.hp + healAmount, profile.maxHp);
+    if (newHp > profile.hp) {
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, { hp: newHp });
+    }
   };
 
   return { tasks, loading, addTask, updateTask, deleteTask, scoreHabit, completeDaily, completeTodo };

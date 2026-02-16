@@ -65,7 +65,7 @@ export default function SkillTreePage() {
         </div>
         <div style={{
           fontFamily: FONTS.pixel,
-          fontSize: 7,
+          fontSize: SIZES.fontXs,
           color: COLORS.textMuted,
           marginTop: 4,
         }}>
@@ -121,7 +121,7 @@ export default function SkillTreePage() {
                     {isUltimate && (
                       <span style={{
                         fontFamily: FONTS.pixel,
-                        fontSize: 7,
+                        fontSize: SIZES.fontXs,
                         color: COLORS.bgDarkest,
                         backgroundColor: classDef.color,
                         padding: '1px 4px',
@@ -132,7 +132,7 @@ export default function SkillTreePage() {
                   </div>
                   <div style={{
                     fontFamily: FONTS.pixel,
-                    fontSize: 7,
+                    fontSize: SIZES.fontXs,
                     color: COLORS.textMuted,
                     marginBottom: 4,
                   }}>
@@ -151,7 +151,7 @@ export default function SkillTreePage() {
                     ))}
                     <span style={{
                       fontFamily: FONTS.pixel,
-                      fontSize: 7,
+                      fontSize: SIZES.fontXs,
                       color: COLORS.textMuted,
                       marginLeft: 4,
                     }}>
@@ -162,7 +162,7 @@ export default function SkillTreePage() {
                   {isLocked && (
                     <div style={{
                       fontFamily: FONTS.pixel,
-                      fontSize: 7,
+                      fontSize: SIZES.fontXs,
                       color: COLORS.fireRed,
                       marginTop: 4,
                     }}>
@@ -181,7 +181,7 @@ export default function SkillTreePage() {
                   >
                     <div style={{ textAlign: 'center' }}>
                       <div style={{ fontSize: SIZES.fontXs }}>UP</div>
-                      <div style={{ fontSize: 7, color: canUp ? COLORS.bgDarkest : COLORS.textMuted }}>
+                      <div style={{ fontSize: SIZES.fontXs, color: canUp ? COLORS.bgDarkest : COLORS.textMuted }}>
                         ⭐{cost}
                       </div>
                     </div>

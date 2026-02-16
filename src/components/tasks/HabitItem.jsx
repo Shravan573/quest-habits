@@ -59,7 +59,7 @@ export default function HabitItem({ task, onScore, onEdit }) {
         <div style={{ display: 'flex', gap: SIZES.spacing, alignItems: 'center' }}>
           <span style={{
             fontFamily: FONTS.pixel,
-            fontSize: 7,
+            fontSize: SIZES.fontXs,
             color: DIFFICULTY_COLORS[task.difficulty],
             textTransform: 'uppercase',
           }}>
@@ -68,7 +68,7 @@ export default function HabitItem({ task, onScore, onEdit }) {
           {(task.counterUp > 0 || task.counterDown > 0) && (
             <span style={{
               fontFamily: FONTS.pixel,
-              fontSize: 7,
+              fontSize: SIZES.fontXs,
               color: COLORS.textMuted,
             }}>
               +{task.counterUp || 0} / -{task.counterDown || 0}
