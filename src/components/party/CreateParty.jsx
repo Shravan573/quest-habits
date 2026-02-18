@@ -15,7 +15,10 @@ export default function CreateParty() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      setError('Enter a party name');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
