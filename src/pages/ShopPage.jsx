@@ -5,7 +5,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { EQUIPMENT, EQUIPMENT_BY_SLOT, getEquipmentStats } from '../data/equipment';
 import PixelButton from '../components/ui/PixelButton';
 import PixelCard from '../components/ui/PixelCard';
-import { COLORS, FONTS, SIZES, PIXEL_BORDER } from '../styles/theme';
+import { COLORS, FONTS, SIZES } from '../styles/theme';
 
 const SLOT_LABELS = {
   weapon: { label: 'WEAPONS', icon: '⚔️' },

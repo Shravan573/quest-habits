@@ -238,8 +238,8 @@ export default function BossArenaPage() {
                 gap: SIZES.spacing,
                 flexWrap: 'wrap',
               }}>
-                {minions.map((m, i) => (
-                  <div key={i} style={{
+                {minions.map((m) => (
+                  <div key={m.key} style={{
                     backgroundColor: COLORS.bgDarkest,
                     border: `1px solid ${COLORS.border}`,
                     padding: '4px 6px',
@@ -378,8 +378,8 @@ export default function BossArenaPage() {
           gap: 4,
           marginBottom: SIZES.spacing,
         }}>
-          {encounter.minions.map((m, i) => (
-            <div key={i} style={{
+          {encounter.minions.map((m) => (
+            <div key={m.key} style={{
               width: 12,
               height: 12,
               border: `1px solid ${m.defeated ? COLORS.neonGreen : COLORS.border}`,

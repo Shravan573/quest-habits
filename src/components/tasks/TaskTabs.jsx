@@ -1,4 +1,4 @@
-import { COLORS, FONTS, SIZES, PIXEL_BORDER } from '../../styles/theme';
+import { COLORS, FONTS, SIZES } from '../../styles/theme';
 
 const TABS = [
   { key: 'habits', label: 'HABITS', icon: '🔄' },

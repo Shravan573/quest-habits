@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuthContext } from '../contexts/AuthContext';
-import { CLASSES, getTotalSkillPointsSpent } from '../data/classes';
+import { CLASSES } from '../data/classes';
 import PixelButton from '../components/ui/PixelButton';
 import PixelCard from '../components/ui/PixelCard';
-import { COLORS, FONTS, SIZES, PIXEL_BORDER } from '../styles/theme';
+import { COLORS, FONTS, SIZES } from '../styles/theme';
 
 export default function SkillTreePage() {
   const { user, profile } = useAuthContext();

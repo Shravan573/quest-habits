@@ -1,4 +1,4 @@
-import { COLORS, FONTS, SIZES, PIXEL_BORDER } from '../../styles/theme';
+import { COLORS, FONTS, SIZES } from '../../styles/theme';
 
 export default function DamageFeed({ feed }) {
   if (!feed || feed.length === 0) {
@@ -26,7 +26,7 @@ export default function DamageFeed({ feed }) {
       {[...feed].reverse().map((entry, i) => {
         const isDealt = entry.type === 'dealt';
         return (
-          <div key={i} style={{
+          <div key={`${entry.timestamp}-${entry.userId}`} style={{
             padding: `4px ${SIZES.spacing}px`,
             backgroundColor: isDealt ? 'rgba(57, 255, 20, 0.05)' : 'rgba(255, 68, 68, 0.05)',
             borderLeft: `3px solid ${isDealt ? COLORS.neonGreen : COLORS.fireRed}`,

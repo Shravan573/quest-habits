@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import {
-  collection, getDocs, doc, updateDoc, writeBatch,
+  collection, getDocs, getDoc, doc, updateDoc, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -69,14 +69,13 @@ async function runCron(userId, profile) {
 async function applyBossAttack(userId, profile, missedCount) {
   try {
     const partyRef = doc(db, 'parties', profile.partyId);
-    const { getDoc } = await import('firebase/firestore');
     const partySnap = await getDoc(partyRef);
     if (!partySnap.exists()) return;
 
     const party = partySnap.data();
     if (!party.activeBoss) return;
 
-    const damage = calculateBossAttack(missedCount, party.activeBoss.attackPower);
+    const damage = calculateBossAttack(missedCount, party.activeBoss.attackPower, profile);
 
     // Apply damage to ALL party members
     const updates = {};
@@ -98,7 +97,7 @@ async function applyBossAttack(userId, profile, missedCount) {
         // If HP hits 0, penalize: lose a level (min 1), restore HP, lose some gold
         if (memberNewHp <= 0) {
           const newLevel = Math.max(1, userData.level - 1);
-          const newMaxHp = 50 + ((newLevel - 1) * 5);
+          const newMaxHp = 50 + (newLevel * 5);
           memberUpdates.hp = newMaxHp;
           memberUpdates.level = newLevel;
           memberUpdates.maxHp = newMaxHp;

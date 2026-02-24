@@ -63,11 +63,6 @@ export function calculateDamage(task, profile, targetType = 'boss') {
   return Math.round(totalDamage * 10) / 10;
 }
 
-// Backward-compatible alias
-export function calculateDamageToBoss(task, playerLevel) {
-  return calculateDamage(task, { level: playerLevel, skills: {}, equipment: {} }, 'boss');
-}
-
 export function calculateBossAttack(missedDailyCount, bossAttackPower, profile) {
   const skills = profile?.skills || {};
   const equipment = profile?.equipment || {};
@@ -134,7 +129,7 @@ export function checkLevelUp(currentXp, currentLevel) {
     return {
       levelsGained: 1,
       remainingXp: currentXp - xpNeeded,
-      newMaxHp: 50 + (currentLevel * 5),
+      newMaxHp: 50 + ((currentLevel + 1) * 5),
     };
   }
   return null;
